@@ -4,8 +4,8 @@ import time
 import os
 import datetime
 import pandas as pd
-#from streamlit_extras.grid import grid
-#from streamlit_extras.stylable_container import stylable_container
+from streamlit_extras.grid import grid
+from streamlit_extras.stylable_container import stylable_container
 from PIL import Image
 import folium
 import plotly.graph_objects as go
