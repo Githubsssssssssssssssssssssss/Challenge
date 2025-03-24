@@ -887,30 +887,30 @@ if selected_item == "Home":
         
         Volonteers = load_data1().shape[0] +load_data2(get_modification_time()).shape[0]
         temp_content = format_card_content(get_text("Volonteers"), Volonteers)
-        create_card(temp_content, key="card_temperature", cell_height="90px", cell_width="105%")
+        create_card(temp_content, key="temperature", cell_height="90px", cell_width="105%")
 
     with row1_cols[1]:
         df1 = load_data1()
         df2 = load_data2(get_modification_time())
         eligible = df1[df1["ÉLIGIBILITÉ_AU_DON."] == "Eligible"].shape[0] + df2[df2["ÉLIGIBILITÉ_AU_DON."] == "Eligible"].shape[0]
         wind_content = format_card_content(get_text("Eligible"), eligible)
-        create_card(wind_content, key="card_wind", cell_height="90px", cell_width="105%")
+        create_card(wind_content, key="wind", cell_height="90px", cell_width="105%")
 
     with row1_cols[2]:
         T_eligible = df1[df1["ÉLIGIBILITÉ_AU_DON."] == "Temporairement Non-eligible"].shape[0] + df2[df2["ÉLIGIBILITÉ_AU_DON."] == "Temporairement Non-eligible"].shape[0]
         wind_content = format_card_content(get_text("Temporarily Non-eligible"), T_eligible)
-        create_card(wind_content, key="card_humidity", cell_height="90px", cell_width="103%")
+        create_card(wind_content, key="humidity", cell_height="90px", cell_width="103%")
 
     with row1_cols[3]:
         T_eligible = df1[df1["ÉLIGIBILITÉ_AU_DON."] == "Définitivement non-eligible"].shape[0] + df2[df2["ÉLIGIBILITÉ_AU_DON."] == "Définitivement non-eligible"].shape[0]
         wind_content = format_card_content(get_text("Definitely Non-eligible"), T_eligible)
-        create_card(wind_content, key="card_humidity", cell_height="90px", cell_width="103%")
+        create_card(wind_content, key="card", cell_height="90px", cell_width="103%")
 
     with row1_cols[6]:
         df =  get_combined_data()
         nomb = df['Si oui preciser la date du dernier don'].count()
         wind = format_card_content(get_text("Have Ever Donated"), nomb)
-        create_card(wind, key="card_humidity", cell_height="90px", cell_width="103%")
+        create_card(wind, key="donated", cell_height="90px", cell_width="103%")
 
     with row1_cols[4]:
         df= load_data1()[(load_data1()['ÉLIGIBILITÉ_AU_DON.']=="Définitivement non-eligible")]
@@ -921,7 +921,7 @@ if selected_item == "Home":
         df_exploded = df_exploded.dropna(subset=["Raison_indisponibilité_fusionnée"])
         element_frequent = df_exploded["Raison_indisponibilité_fusionnée"].mode()[0]
         wind = format_card_content(get_text("Most Ilegibility Purpose"), element_frequent)
-        create_card(wind, key="card_humidity", cell_height="90px", cell_width="103%")
+        create_card(wind, key="available", cell_height="90px", cell_width="103%")
 
     with row1_cols[5]:
         df= load_data1()[(load_data1()['ÉLIGIBILITÉ_AU_DON.']=="Temporairement Non-eligible")]
@@ -932,7 +932,7 @@ if selected_item == "Home":
         df_exploded = df_exploded.dropna(subset=["Raison_indisponibilité_fusionnée"])
         element_frequent = df_exploded["Raison_indisponibilité_fusionnée"].mode()[0]
         wind = format_card_content(get_text("Most Non eligible Purpose"), element_frequent)
-        create_card(wind, key="card_humidity", cell_height="90px", cell_width="103%")
+        create_card(wind, key="eligible", cell_height="90px", cell_width="103%")
 
     gdf = load_shapefile("gadm41_CMR_0.shp")
     data_df_3 = get_preprocessed_data(3)
