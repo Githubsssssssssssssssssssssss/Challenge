@@ -839,7 +839,7 @@ if selected_item == "Home":
 
     with col[0]: 
         with stylable_container(
-            key='c',
+            key='842',
             css_styles="""
                 {border: 1px solid #c0c0c0;
                 border-radius: 10px;
@@ -941,7 +941,7 @@ if selected_item == "Home":
     row=st.columns(1)
     with row[0]:
         with stylable_container(
-                key='c',
+                key='944',
                 css_styles=f"""
                     {{
                     width : 100%;
@@ -1113,7 +1113,7 @@ if selected_item == "Home":
     with row[0] : 
         st.markdown(f"""<div class="card-title" style="text-align: center; font-size: 20px; font-weight: bold; color:black">{get_text("Donnor Insights")}</div> """,  unsafe_allow_html=True)       
         with stylable_container(
-            key='c',
+            key='1116',
             css_styles=f"""
                 {{
                 width : 100%;
@@ -1149,7 +1149,7 @@ if selected_item == "Home":
                 else : display_ideal_chart_f()
         st.markdown(f"""<div class="card-title" style="text-align: center; font-size: 20px; font-weight: bold; color:black">{get_text("Social and Demographics stats")}</div> """,  unsafe_allow_html=True)       
         with stylable_container(
-            key='cartes',
+            key='1152',
             css_styles=f"""
                 {{width : 100%;
                 
@@ -1198,7 +1198,7 @@ if selected_item == "Home":
     with row[1] : 
         st.markdown(f"""<div class="card-title" style="text-align: center; font-size: 20px; font-weight: bold; color:black">{get_text("Cartography Summary")}</div> """,  unsafe_allow_html=True)       
         with stylable_container(
-            key='cartes',
+            key='1201',
             css_styles=f"""
                 {{width : 110%;
                     border: 1px solid #c0c0c0;
@@ -1291,7 +1291,7 @@ if selected_item == "Home":
 
         st.markdown(f"""<div class="card-title" style="text-align: center; font-size: 20px; font-weight: bold; color:black">{get_text("Campaign efficacity")}</div> """,  unsafe_allow_html=True)       
         with stylable_container(
-            key='cartes',
+            key='1294',
             css_styles=f"""
                 {{width : 95%;
                 
@@ -1736,7 +1736,7 @@ elif selected_item == "Cartography":
             
         with col1:
                 with stylable_container(
-                    key='carte',
+                    key='1739',
                     css_styles=f"""
                         {{
                             width: {'100%'};   
@@ -1943,7 +1943,7 @@ elif selected_item == "Cartography":
         with col1:
             st.markdown(f"<h3 class='card-title' style='text-align: center; ;'>{get_text('Zoom for better appreciation')}</h3>", unsafe_allow_html=True)
             with stylable_container(
-                key='carte_marqueurs',
+                key='1946',
                 css_styles=f"""
                     {{
                         width: {'100%'};   
