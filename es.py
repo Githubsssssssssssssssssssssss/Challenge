@@ -753,7 +753,7 @@ if selected_item == "Options":
             "font": "sans serif"
         }
     }   
-    @st.cache_resource 
+
     def apply_theme(theme_choice):
         # Get the selected theme
         selected_theme = THEMES[theme_choice]
