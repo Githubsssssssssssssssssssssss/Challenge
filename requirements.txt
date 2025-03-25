@@ -1,0 +1,28 @@
+# Core Streamlit
+streamlit
+streamlit-extras  # Includes grid and stylable_container
+
+# Data Manipulation
+pandas
+numpy
+openpyxl
+geopandas
+
+# Image Processing
+Pillow
+
+# Mapping and Geospatial
+folium
+streamlit-folium
+geopy
+
+# Visualization Libraries
+plotly
+matplotlib
+streamlit-echarts
+pyecharts
+wordcloud
+
+# Additional Libraries
+json
+re
