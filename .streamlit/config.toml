@@ -1,13 +1,6 @@
 [theme]
 primaryColor="#F50307"
-backgroundColor="#FBFBFB"
+backgroundColor="yellow"
 secondaryBackgroundColor="#EC8282"
 textColor="#000000"
 font="sans serif"
-
-[server]
-port = 8501
-maxUploadSize = 5
-
-[browser]
-gatherUsageStats = false
