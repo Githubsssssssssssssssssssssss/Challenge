@@ -3,6 +3,7 @@ import base64
 import time
 import os
 import datetime
+from streamlit_folium import st_folium
 import pandas as pd
 from streamlit_extras.grid import grid
 from streamlit_extras.stylable_container import stylable_container
@@ -1286,8 +1287,8 @@ if selected_item == "Home":
                         ).add_to(m)
 
                     folium.LayerControl().add_to(m)
+                    st_folium(m, width=900, height=900)
 
-                    folium_static(m, width=400, height=500)
 
         st.markdown(f"""<div class="card-title" style="text-align: center; font-size: 20px; font-weight: bold; color:black">{get_text("Campaign efficacity")}</div> """,  unsafe_allow_html=True)       
         with stylable_container(
@@ -1765,7 +1766,7 @@ elif selected_item == "Cartography":
                                 color: #8a2be2;  # Light purple color
                             }}
                     """
-                ): folium_static(m, width=900, height=900)
+                ): st_folium(m, width=900, height=900)
     # Affichage de la carte de marqueurs
     if st.session_state.marquer_active:
         # Charger les données une seule fois
@@ -1964,7 +1965,7 @@ elif selected_item == "Cartography":
                     }}
 
                 """
-            ): folium_static(m1, width=900, height=900)              
+            ): st_folium(m1, width=900, height=900)        
 
 elif selected_item == "About":
     with st.sidebar:
