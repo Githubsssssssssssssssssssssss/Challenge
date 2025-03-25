@@ -2363,10 +2363,10 @@ elif selected_item == "About":
                 return image_name
 
         team_members = [
-            {"name": "ASSA ALLO", "email": "alloassa21@gmail.com", "phone": "+1234567890", "image": "img/aa.jpg"},
-            {"name": " Steeve Rodrigue", "email": "rodriguetakougoum@gmail.com", "phone": "+237 6 51 85 90 69", "image": "img/sr.png"},
-            {"name": "Razak TIDJANI", "email": "tidjanirazak0@gmail.com", "phone": "+1122334455", "image": "img/rz.jpg"},            
-            {"name": "TCHINDA CHRIS", "email": "tcd9602@gmail.com", "phone": "+5544332211", "image": "img/tcd.jpg"},
+            {"name": "ASSA ALLO", "email": "alloassa21@gmail.com", "phone": "+1237 _________", "image": "img/aa.jpg"},
+            {"name": " TAKOUGOUM Steeve Rodrigue", "email": "rodriguetakougoum@gmail.com", "phone": "+237__________", "image": "img/sr.png"},
+            {"name": " TIDJANI Razak", "email": "tidjanirazak0@gmail.com", "phone": "+237 ___________", "image": "img/rz.jpg"},            
+            {"name": "TCHINDA Chris Donald", "email": "tcd9602@gmail.com", "phone": "+237 ___________ ", "image": "img/tcd.jpg"},
         ]
 
         # Display Team Members in a 1x4 Grid
