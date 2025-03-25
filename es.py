@@ -29,6 +29,9 @@ st.set_page_config(
 if 'language' not in st.session_state:
     st.session_state.language = "English"
 
+if 'theme' not in st.session_state:
+        st.session_state.theme = "Light"
+
 # Chargement des traductions
 with open('langage.json', 'r', encoding='utf-8') as json_file:
     TRANSLATIONS = json.load(json_file)
