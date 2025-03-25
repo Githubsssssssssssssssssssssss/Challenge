@@ -1242,10 +1242,17 @@ if selected_item == "Home":
 
                     combined_data = get_hierarchical_data()
                     geo_data_3 = load_shapefile("gadm41_CMR_3.shp", simplify_tolerance=0.01)
+                    def calculate_accurate_centroids(geo_data_3):
+                        if geo_data_3.crs.is_geographic:
+                            projected_crs = 'EPSG:4047'
+                            geo_data_3_proj = geo_data_3.to_crs(projected_crs)
+                            centroids_proj = geo_data_3_proj.geometry.centroid
+                            centroids_geo = centroids_proj.to_crs(geo_data_3.crs)
+                            return centroids_geo.y, centroids_geo.x
+                        else:
+                            return geo_data_3.geometry.centroid.y, geo_data_3.geometry.centroid.x
 
-                    geo_data_3['centroid_lat'] = geo_data_3['geometry'].centroid.y
-                    geo_data_3['centroid_lon'] = geo_data_3['geometry'].centroid.x
-
+                    geo_data_3['centroid_lat'], geo_data_3['centroid_lon'] = calculate_accurate_centroids(geo_data_3)
                     centroid_dict = dict(zip(geo_data_3['NAME_3'], zip(geo_data_3['centroid_lat'], geo_data_3['centroid_lon'])))
 
                     geo_data_3 = geo_data_3.merge(combined_data, left_on='NAME_3', right_on='Arrondissement_de_résidence_')
