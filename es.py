@@ -392,6 +392,7 @@ menu_items = {
     "Dataset Insights": f"🔄 {get_text('Dataset Insights')}",
     "Eligibility and Profile": f"🩺 {get_text('Eligibility and Profile')}",
     "Campaign Insights": f"📊 {get_text('Campaign Insights')}",
+     "Fidélisation": f"📊 {get_text('Fidélisation')}",
     "Options": f"⚙️ {get_text('Options')}",
     "About": f"ℹ️ {get_text('About')}"
 }
@@ -405,6 +406,304 @@ selected_item = st.sidebar.selectbox(
     key="main_menu",
     help="Sélectionnez une option du menu"
 )
+
+if selected_item =="Fidélisation":
+    st.markdown("""
+        <style>
+        .block-container {
+            padding-top: 0rem;
+            padding-bottom: 0rem;
+            padding-left:4rem;
+            padding-right: 4rem;
+            margin-top: 0px;
+        }
+            
+            /* Remove extra padding around header */
+            header {
+                margin-bottom: 0rem !important;
+                padding-bottom: 0rem !important;
+            }
+        </style>
+        """, unsafe_allow_html=True)
+    
+    combined_data = get_combined_data()
+    row1_cols = st.columns(3)
+    with row1_cols[1]:
+        all_arrondissement = combined_data['Arrondissement_de_résidence_'].unique()
+        selected_arrondissement = st.sidebar.multiselect(
+            get_text("Districts"),
+            all_arrondissement
+        )
+        if not selected_arrondissement:
+            selected_arrondissement = all_arrondissement
+    with row1_cols[2]:
+        all_case = combined_data['ÉLIGIBILITÉ_AU_DON.'].unique()
+        selected_case = st.sidebar.multiselect(
+            "Eligible",
+            all_case # Limiter par défaut pour améliorer les performances
+        )
+        if not selected_case:
+            selected_case = all_case
+    # Filtrer les données avec tous les filtres
+    filtered_data = combined_data[
+        (combined_data['Arrondissement_de_résidence_'].isin(selected_arrondissement)) &
+        (combined_data['ÉLIGIBILITÉ_AU_DON.'].isin(selected_case))]
+    
+   # Étape 1 : Filtrer les donneurs éligibles
+    df = load_data1()
+    df_eligible = df[df['ÉLIGIBILITÉ_AU_DON.'] == 'Eligible']
+
+    # Identifier les donneurs récurrents et non récurrents
+    df_eligible_recurrent = df_eligible[df_eligible['A-t-il (elle) déjà donné le sang'] == 'Oui']
+    df_eligible_non_recurrent = df_eligible[df_eligible['A-t-il (elle) déjà donné le sang'] == 'Non']
+
+    # Liste des colonnes démographiques à analyser
+    demographic_columns = ['Classe_Age', 'Genre_', "Niveau_d'etude", 'Religion_Catégorie', 
+                        'Situation_Matrimoniale_(SM)', 'categories', 'Arrondissement_de_résidence_']
+
+    # Fonction pour générer un graphique interactif avec les top 4 catégories
+    def plot_top4_demographic(data_recurrent, data_non_recurrent, column, title_prefix, comparison=False, orientation='v'):
+        count_recurrent = data_recurrent[column].value_counts()
+        if comparison:
+            count_non_recurrent = data_non_recurrent[column].value_counts()
+            
+            all_categories = pd.concat([count_recurrent, count_non_recurrent], axis=1, sort=False)
+            all_categories.columns = ['Récurrents', 'Non Récurrents']
+            all_categories.fillna(0, inplace=True)
+            
+            all_categories['Total'] = all_categories['Récurrents'] + all_categories['Non Récurrents']
+            top4_categories = all_categories.sort_values('Total', ascending=False).head(4).index
+            
+            count_recurrent = count_recurrent[count_recurrent.index.isin(top4_categories)]
+            count_non_recurrent = count_non_recurrent[count_non_recurrent.index.isin(top4_categories)]
+            
+            fig = go.Figure()
+            fig.add_trace(go.Bar(
+                x=count_recurrent.index if orientation == 'v' else count_recurrent.values,
+                y=count_recurrent.values if orientation == 'v' else count_recurrent.index,
+                name='Récurrents (Oui)',
+                marker_color='#00cc96',
+                text=count_recurrent.values,
+                textposition='auto',
+                orientation='h' if orientation == 'h' else 'v'
+            ))
+            fig.add_trace(go.Bar(
+                x=count_non_recurrent.index if orientation == 'v' else count_non_recurrent.values,
+                y=count_non_recurrent.values if orientation == 'v' else count_non_recurrent.index,
+                name='Non Récurrents (Non)',
+                marker_color='#ff5733',
+                text=count_non_recurrent.values,
+                textposition='auto',
+                orientation='h' if orientation == 'h' else 'v'
+            ))
+        else:
+            top4_categories = count_recurrent.head(4).index
+            count_recurrent = count_recurrent[count_recurrent.index.isin(top4_categories)]
+            
+            fig = go.Figure()
+            fig.add_trace(go.Bar(
+                x=count_recurrent.index if orientation == 'v' else count_recurrent.values,
+                y=count_recurrent.values if orientation == 'v' else count_recurrent.index,
+                name='Récurrents',
+                marker_color='#00cc96',
+                text=count_recurrent.values,
+                textposition='auto',
+                orientation='h' if orientation == 'h' else 'v'
+            ))
+        
+        fig.update_layout(
+            title=f"{title_prefix} par {column} (Top 4)",
+            xaxis_title=column if orientation == 'v' else 'Nombre de donneurs',
+            yaxis_title='Nombre de donneurs' if orientation == 'v' else column,
+            xaxis=dict(tickangle=45),
+            legend=dict(title='Statut de récurrence', orientation='h', yanchor='bottom', y=-0.3, xanchor='center', x=0.5),
+            plot_bgcolor='white',
+            width=800,
+            height=600,
+            barmode='group' if comparison else 'stack'
+        )
+        
+        return fig
+
+    # Initialize Streamlit
+    st.title(get_text("Blood Donor Analysis"))
+    st.write("Select a demographic variable to visualize the distribution of recurrent and non-recurrent donors.")
+
+    # Sélection des paramètres par l'utilisateur
+    selected_column = st.selectbox(get_text("Choose a demographic variable:"), demographic_columns)
+    orientation = st.radio(get_text("Graph orientation:"), ['Vertical', 'Horizontal'])
+    comparison = st.checkbox(get_text("Compare recurrent and non-recurrent donors?"), value=False)
+
+    # Convertir en format utilisable par la fonction
+    orientation_value = 'v' if orientation == 'Verticale' else 'h'
+
+    # Générer le graphique
+    fig = plot_top4_demographic(df_eligible_recurrent, df_eligible_non_recurrent, selected_column, "Analyse des donneurs", comparison, orientation_value)
+
+    # Afficher le graphique dans Streamlit
+    st.plotly_chart(fig)
+
+    ###########################"
+    df_temp_non_eligible = df[df['ÉLIGIBILITÉ_AU_DON.'] == 'Temporairement Non-eligible']
+
+    # Séparer les hommes et les femmes
+    df_temp_men = df_temp_non_eligible[df_temp_non_eligible['Genre_'] == 'Homme']
+    df_temp_women = df_temp_non_eligible[df_temp_non_eligible['Genre_'] == 'Femme']
+
+    # Définir une palette de couleurs
+    color_men = '#1f77b4'
+    color_women = '#ff7f0e'
+
+    # Fonction pour générer un graphique Plotly
+    def plot_top4_demographic(data_men, data_women, column, title_prefix, orientation='v'):
+        count_men = data_men[column].value_counts()
+        count_women = data_women[column].value_counts()
+        
+        all_categories = pd.concat([count_men, count_women], axis=1, sort=False).fillna(0)
+        all_categories.columns = ['Hommes', 'Femmes']
+        all_categories['Total'] = all_categories['Hommes'] + all_categories['Femmes']
+        top4_categories = all_categories.sort_values('Total', ascending=False).head(4).index
+        
+        count_men = count_men[count_men.index.isin(top4_categories)]
+        count_women = count_women[count_women.index.isin(top4_categories)]
+        
+        fig = go.Figure()
+        
+        if orientation == 'v':
+            fig.add_trace(go.Bar(x=count_men.index, y=count_men.values, name='Hommes', marker_color=color_men))
+            fig.add_trace(go.Bar(x=count_women.index, y=count_women.values, name='Femmes', marker_color=color_women))
+            fig.update_layout(xaxis_title=column, yaxis_title='Donor number')
+        else:
+            fig.add_trace(go.Bar(y=count_men.index, x=count_men.values, name='Hommes', marker_color=color_men, orientation='h'))
+            fig.add_trace(go.Bar(y=count_women.index, x=count_women.values, name='Femmes', marker_color=color_women, orientation='h'))
+            fig.update_layout(xaxis_title='Donor', yaxis_title=column)
+        
+        return fig
+        # Interface Streamlit
+    st.title(get_text("Analysis of Temporarily Non-Eligible Donors"))
+
+    demographic_columns = {
+        'Classe_Age': get_text('Age Group'),
+        'categories': get_text('Professional Categories'),
+        'Arrondissement_de_résidence_': get_text('District of Residence'),
+        'Raison_indisponibilité_fusionnée': get_text('Reasons for Ineligibility')
+    }
+
+    selected_column = st.selectbox(get_text("select a catégory"), list(demographic_columns.keys()), format_func=lambda x: demographic_columns[x])
+
+    graph_orientation = 'h' if selected_column in ['categories', 'Arrondissement_de_résidence_', 'Raison_indisponibilité_fusionnée'] else 'v'
+
+    st.plotly_chart(plot_top4_demographic(df_temp_men, df_temp_women, selected_column, "Profil des donneurs", orientation=graph_orientation))
+#_________________________________________________________________
+    def plot_bar_reasons(df, eligibility_type='Temporairement Non-eligible', gender=None):
+        filtered_df = df[df['ÉLIGIBILITÉ_AU_DON.'] == eligibility_type]
+        if gender:
+            filtered_df = filtered_df[filtered_df['Genre_'] == gender]
+        
+        reasons_list = filtered_df['Raison_indisponibilité_fusionnée'].dropna().str.split(';').explode().str.strip()
+        reason_counts = Counter(reasons_list)
+        
+        fig = go.Figure()
+        fig.add_trace(go.Bar(
+            x=list(reason_counts.keys()),
+            y=list(reason_counts.values()),
+            marker_color='#FF6347',
+            text=[str(val) for val in reason_counts.values()],
+            textposition='auto',
+            textfont=dict(size=16, color='white', family='Arial Black')
+        ))
+        
+        title = f"{get_text('Reasons for ineligibility')} ({eligibility_type})"
+        if gender:
+            title += f" - {gender}"
+        
+        fig.update_layout(
+            title=title,
+            xaxis_title=get_text("Ineligibility reasons"),
+            yaxis_title=get_text("Number of occurrences"),
+            template='plotly_white',
+            bargap=0.2,
+            xaxis=dict(tickangle=-45)
+        )
+        
+        return fig
+
+    def plot_frequencies_by_category(df, category_col, gender_col):
+        count_data = df.groupby([category_col, gender_col]).size().unstack(fill_value=0)
+        categories = count_data.index
+        
+        fig = go.Figure()
+        for gender in count_data.columns:
+            fig.add_trace(go.Bar(
+                x=categories, 
+                y=count_data[gender], 
+                name=gender,
+            ))
+        
+        fig.update_layout(
+            title=f"{get_text('Distribution of')} {category_col} {get_text('by gender')}",
+            xaxis_title=category_col,
+            yaxis_title=get_text("Number of people"),
+            barmode='group'
+        )
+        return fig
+
+    def plot_hemoglobin_box(df, eligibility_col='ÉLIGIBILITÉ_AU_DON.', hemoglobin_col='Taux d’hémoglobine'):
+        if not all(col in df.columns for col in [eligibility_col, hemoglobin_col]):
+            st.error(get_text("The required columns are missing from the dataset."))
+            return None
+        
+        df[hemoglobin_col] = pd.to_numeric(df[hemoglobin_col], errors='coerce')
+        df_clean = df.dropna(subset=[hemoglobin_col])
+        
+        fig = go.Figure()
+        colors = ['#FF4040', '#FF8C00', '#FFB6C1']
+        
+        for i, status in enumerate(df_clean[eligibility_col].unique()):
+            status_data = df_clean[df_clean[eligibility_col] == status][hemoglobin_col]
+            fig.add_trace(go.Box(
+                y=status_data,
+                name=status,
+                marker_color=colors[i % len(colors)],
+                boxpoints='all', jitter=0.3, pointpos=-1.8, line_width=2
+            ))
+        
+        fig.update_layout(
+            title=get_text("Hemoglobin level distribution by eligibility status"),
+            xaxis_title=get_text("Eligibility status"),
+            yaxis_title=get_text("Hemoglobin level (g/dL)"),
+            template='plotly_white',
+            showlegend=True,
+            height=600
+        )
+        
+        fig.add_hline(y=12.5, line_dash="dash", line_color="red", annotation_text=get_text("Min threshold (F)"), annotation_position="top right")
+        fig.add_hline(y=13.0, line_dash="dash", line_color="blue", annotation_text=get_text("Min threshold (H)"), annotation_position="top right")
+        
+        return fig
+
+    st.title(get_text("Donor Ineligibility Analysis"))
+    col = st.columns(2)
+    with col[0]:
+        type_eligibility = st.selectbox(get_text("Choose an eligibility type"), ['Temporairement Non-eligible', 'Définitivement non-eligible'])
+    with col[1]:
+        gender = st.selectbox(get_text("Filter by gender (optional)"), [get_text('All'), 'Homme', 'Femme'])
+    if gender == get_text('All'):
+        gender = None
+    st.plotly_chart(plot_bar_reasons(df, type_eligibility, gender))
+
+    demographic_columns = {
+        'Classe_Age': get_text("Age range"),
+        'categories': get_text("Professional categories"),
+        'Arrondissement_de_résidence_': get_text("Residence district"),
+        'Raison_indisponibilité_fusionnée': get_text("Ineligibility reasons")
+    }
+    selected_column = st.selectbox(get_text("Select a category to analyze"), list(demographic_columns.keys()), format_func=lambda x: demographic_columns[x])
+    graph_orientation = 'h' if selected_column in ['categories', 'Arrondissement_de_résidence_', 'Raison_indisponibilité_fusionnée'] else 'v'
+    st.plotly_chart(plot_frequencies_by_category(df_temp_non_eligible, selected_column, 'Genre_'))
+    st.title(get_text("Hemoglobin Level Analysis"))
+    st.plotly_chart(plot_hemoglobin_box(df))
+    #_______________________________________________________
 
 if selected_item =="Campaign Insights":
     st.markdown("""

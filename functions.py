@@ -394,7 +394,7 @@ def prepare_frequency_pie_options_wl(data_list, lege):
             }
         ],
         # Set a colorful palette for the pie chart
-        "color": ["#8A0707", "#B22222", "#DC143C", "#EC8282", "#FFB6B6", "#FFD1D1"]
+        "color": ["#FA668F", "#B22222", "#DC143C", "#EC8282", "#FFB6B6", "#FFD1D1"]
     }
     
     return pie_options
@@ -449,7 +449,7 @@ def prepare_frequency_pie_options(data_list, legend_left="70%", legend_top="50%"
             }
         ],
         # Set a colorful palette for the pie chart
-        "color": ["#DC143C",   "SlateBlue", "SandyBrown", "pink", "cyan","green"]
+        "color": ["#FA668F",   "SlateBlue", "SandyBrown", "pink", "cyan","green"]
     }
     
     return pie_options
@@ -499,7 +499,7 @@ def prepare_frequency_pieh_options(data_list, legend_left="70%", legend_top="85%
             }
         ],
         # Set a colorful palette for the pie chart
-        "color": ["#DC143C",  "SlateBlue", "tomato","SandyBrown", "pink", "#FF3434","cyan","skyblue"]
+        "color": ["#FA668F",  "SlateBlue", "tomato","SandyBrown", "pink", "#FF3434","cyan","skyblue"]
     }
 
     return pie_options
@@ -585,7 +585,7 @@ def render_frequency_pie2(pie_data, legend_left="23%", legend_top="80%"):
             }
         ],
         # Set a colorful palette for the pie chart
-        "color": ["#DC143C",  "SlateBlue", "tomato","SandyBrown", "pink", "#FF3434","cyan","skyblue"]
+        "color": ["#FA668F",  "SlateBlue", "tomato","SandyBrown", "pink", "#FF3434","cyan","skyblue"]
     }
 
     # Render the chart in Streamlit
@@ -1792,3 +1792,313 @@ def heatmap(df) :
     )
 
     st.plotly_chart(fig,use_container_width=True)
+
+def fiel_1(df) : 
+
+    # Filtrer pour ne garder que les donneurs ayant répondu "Oui" à "A-t-il (elle) déjà donné le sang"
+    df = df[df['A-t-il (elle) déjà donné le sang'] == 'Oui']
+
+    # Étape 2 : Créer les flux entre chaque paire de catégories consécutives
+    # On va créer des paires : (A-t-il (elle) déjà donné le sang → ÉLIGIBILITÉ_AU_DON.), (ÉLIGIBILITÉ_AU_DON. → Classe_Age), etc.
+
+    # Flux 1 : A-t-il (elle) déjà donné le sang → ÉLIGIBILITÉ_AU_DON.
+    flux1 = df.groupby(['A-t-il (elle) déjà donné le sang', 'ÉLIGIBILITÉ_AU_DON.']).size().reset_index(name='Nombre')
+
+    # Flux 2 : ÉLIGIBILITÉ_AU_DON. → Classe_Age
+    flux2 = df.groupby(['ÉLIGIBILITÉ_AU_DON.', 'Classe_Age']).size().reset_index(name='Nombre')
+
+    # Flux 3 : Classe_Age → Genre_
+    flux3 = df.groupby(['Classe_Age', 'Genre_']).size().reset_index(name='Nombre')
+
+    # Flux 4 : Genre_ → Niveau_d_etude
+    flux4 = df.groupby(['Genre_', "Niveau_d'etude"]).size().reset_index(name='Nombre')
+
+    # Flux 5 : Niveau_d_etude → Religion_Catégorie
+    flux5 = df.groupby(["Niveau_d'etude", 'Religion_Catégorie']).size().reset_index(name='Nombre')
+
+    # Flux 6 : Religion_Catégorie → Situation_Matrimoniale_(SM)
+    flux6 = df.groupby(['Religion_Catégorie', 'Situation_Matrimoniale_(SM)']).size().reset_index(name='Nombre')
+
+    # Flux 7 : Situation_Matrimoniale_(SM) → categories
+    flux7 = df.groupby(['Situation_Matrimoniale_(SM)', 'categories']).size().reset_index(name='Nombre')
+
+    # Étape 3 : Créer la liste des nœuds (toutes les catégories uniques)
+    donne_sang = df['A-t-il (elle) déjà donné le sang'].unique().tolist()  # Contient uniquement "Oui" après le filtre
+    eligibilites = df['ÉLIGIBILITÉ_AU_DON.'].unique().tolist()
+    classes_age = df['Classe_Age'].unique().tolist()
+    genres = df['Genre_'].unique().tolist()
+    niveaux_etude = df["Niveau_d'etude"].unique().tolist()
+    religions = df['Religion_Catégorie'].unique().tolist()
+    situations_matrimoniales = df['Situation_Matrimoniale_(SM)'].unique().tolist()
+    categories = df['categories'].unique().tolist()
+
+    # Liste complète des nœuds
+    nodes = (donne_sang + eligibilites + classes_age + genres + niveaux_etude +
+        religions + situations_matrimoniales + categories)
+
+    # Étape 4 : Créer un dictionnaire pour mapper les nœuds à des indices
+    node_dict = {node: idx for idx, node in enumerate(nodes)}
+
+    # Étape 5 : Créer les liens (source, target, value) pour chaque flux
+    # Liens pour Flux 1 : A-t-il (elle) déjà donné le sang → ÉLIGIBILITÉ_AU_DON.
+    source1 = flux1['A-t-il (elle) déjà donné le sang'].map(node_dict).tolist()
+    target1 = flux1['ÉLIGIBILITÉ_AU_DON.'].map(node_dict).tolist()
+    value1 = flux1['Nombre'].tolist()
+
+    # Liens pour Flux 2 : ÉLIGIBILITÉ_AU_DON. → Classe_Age
+    source2 = flux2['ÉLIGIBILITÉ_AU_DON.'].map(node_dict).tolist()
+    target2 = flux2['Classe_Age'].map(node_dict).tolist()
+    value2 = flux2['Nombre'].tolist()
+
+    # Liens pour Flux 3 : Classe_Age → Genre_
+    source3 = flux3['Classe_Age'].map(node_dict).tolist()
+    target3 = flux3['Genre_'].map(node_dict).tolist()
+    value3 = flux3['Nombre'].tolist()
+
+    # Liens pour Flux 4 : Genre_ → Niveau_d_etude
+    source4 = flux4['Genre_'].map(node_dict).tolist()
+    target4 = flux4["Niveau_d'etude"].map(node_dict).tolist()
+    value4 = flux4['Nombre'].tolist()
+
+    # Liens pour Flux 5 : Niveau_d_etude → Religion_Catégorie
+    source5 = flux5["Niveau_d'etude"].map(node_dict).tolist()
+    target5 = flux5['Religion_Catégorie'].map(node_dict).tolist()
+    value5 = flux5['Nombre'].tolist()
+
+    # Liens pour Flux 6 : Religion_Catégorie → Situation_Matrimoniale_(SM)
+    source6 = flux6['Religion_Catégorie'].map(node_dict).tolist()
+    target6 = flux6['Situation_Matrimoniale_(SM)'].map(node_dict).tolist()
+    value6 = flux6['Nombre'].tolist()
+
+    # Liens pour Flux 7 : Situation_Matrimoniale_(SM) → categories
+    source7 = flux7['Situation_Matrimoniale_(SM)'].map(node_dict).tolist()
+    target7 = flux7['categories'].map(node_dict).tolist()
+    value7 = flux7['Nombre'].tolist()
+
+    # Combiner tous les liens
+    source = source1 + source2 + source3 + source4 + source5 + source6 + source7
+    target = target1 + target2 + target3 + target4 + target5 + target6 + target7
+    value = value1 + value2 + value3 + value4 + value5 + value6 + value7
+
+    # Étape 6 : Définir les couleurs pour les nœuds
+    # On attribue des couleurs différentes pour chaque groupe de nœuds
+    num_donne_sang = len(donne_sang)
+    num_eligibilites = len(eligibilites)
+    num_classes_age = len(classes_age)
+    num_genres = len(genres)
+    num_niveaux_etude = len(niveaux_etude)
+    num_religions = len(religions)
+    num_situations_matrimoniales = len(situations_matrimoniales)
+    num_categories = len(categories)
+
+    # Couleurs pour chaque groupe
+    colors_donne_sang = ['#ff00ff'] * num_donne_sang  # Magenta pour A-t-il (elle) déjà donné le sang
+    colors_eligibilites = ['#00cc96'] * num_eligibilites  # Vert pour ÉLIGIBILITÉ_AU_DON.
+    colors_classes_age = ['#f83e8c'] * num_classes_age  # Rose pour Classe_Age
+    colors_genres = ['#8b008b'] * num_genres  # Violet foncé pour Genre_
+    colors_niveaux_etude = ['#1e90ff'] * num_niveaux_etude  # Bleu pour Niveau_d_etude
+    colors_religions = ['#ffd700'] * num_religions  # Jaune pour Religion_Catégorie
+    colors_situations_matrimoniales = ['#ff4500'] * num_situations_matrimoniales  # Orange pour Situation_Matrimoniale_(SM)
+    colors_categories = ['#00b7eb'] * num_categories  # Cyan pour categories
+
+    # Combiner les couleurs
+    node_colors = (colors_donne_sang + colors_eligibilites + colors_classes_age + colors_genres +
+            colors_niveaux_etude + colors_religions + colors_situations_matrimoniales + colors_categories)
+
+    # Étape 7 : Créer le diagramme de Sankey
+    fig = go.Figure(data=[go.Sankey(
+    node=dict(
+        pad=15,
+        thickness=20,
+        line=dict(color="black", width=0.5),
+        label=nodes,
+        color=node_colors
+    ),
+    link=dict(
+        source=source,
+        target=target,
+        value=value,
+        color='rgba(200, 200, 200, 0.5)'  # Couleur des liens
+    )
+    )])
+
+    # Étape 8 : Personnaliser le layout
+    fig.update_layout(
+    title_text="Flux des donneurs (A-t-il donné = Oui) : A-t-il donné → Éligibilité → Classe d'âge → Genre → Niveau d'étude → Religion → Situation matrimoniale → Catégorie",
+    font=dict(size=10, color='black'),
+    width=1200,  # Ajuster la largeur pour une meilleure lisibilité
+    height=800  # Ajuster la hauteur
+    )
+    st.plotly_chart(fig,use_container_width=True)
+
+def plot_top4_demographic(data_recurrent, data_non_recurrent, column, title_prefix, comparison=False, orientation='v'):
+    """
+    Génère un graphique Plotly avec les top 4 catégories pour une variable démographique.
+    
+    Parameters:
+    - data_recurrent: DataFrame des donneurs récurrents
+    - data_non_recurrent: DataFrame des donneurs non récurrents (pour comparaison)
+    - column: Colonne démographique à analyser
+    - title_prefix: Préfixe du titre du graphique
+    - comparison: Booléen pour indiquer si on compare récurrents et non récurrents
+    - orientation: 'v' pour vertical (par défaut), 'h' pour horizontal
+    """
+    # Compter les occurrences pour les donneurs récurrents et non récurrents
+    if comparison:
+        # Pour les graphiques de comparaison (récurrents vs non récurrents)
+        count_recurrent = data_recurrent[column].value_counts()
+        count_non_recurrent = data_non_recurrent[column].value_counts()
+        
+        # Fusionner les deux séries pour obtenir toutes les catégories
+        all_categories = pd.concat([count_recurrent, count_non_recurrent], axis=1, sort=False)
+        all_categories.columns = ['Récurrents', 'Non Récurrents']
+        all_categories.fillna(0, inplace=True)
+        
+        # Calculer le total pour trier
+        all_categories['Total'] = all_categories['Récurrents'] + all_categories['Non Récurrents']
+        top4_categories = all_categories.sort_values('Total', ascending=False).head(4).index
+        
+        # Filtrer les données pour ne garder que les top 4 catégories
+        count_recurrent = count_recurrent[count_recurrent.index.isin(top4_categories)]
+        count_non_recurrent = count_non_recurrent[count_non_recurrent.index.isin(top4_categories)]
+        
+        # Créer le graphique de comparaison
+        fig = go.Figure()
+        
+        if orientation == 'v':
+            # Orientation verticale
+            fig.add_trace(go.Bar(
+                x=count_recurrent.index,
+                y=count_recurrent.values,
+                name='Récurrents (Oui)',
+                marker_color='#00cc96',  # Vert
+                text=count_recurrent.values,
+                textposition='auto',
+                hovertemplate='<b>%{x}</b><br>Nombre: %{y}<br>Catégorie: Récurrents<extra></extra>'
+            ))
+            
+            fig.add_trace(go.Bar(
+                x=count_non_recurrent.index,
+                y=count_non_recurrent.values,
+                name='Non Récurrents (Non)',
+                marker_color='#ff5733',  # Orange
+                text=count_non_recurrent.values,
+                textposition='auto',
+                hovertemplate='<b>%{x}</b><br>Nombre: %{y}<br>Catégorie: Non Récurrents<extra></extra>'
+            ))
+            
+            xaxis_title = column
+            yaxis_title = 'Nombre de donneurs'
+            xaxis_config = dict(tickangle=45, title_standoff=25)
+            yaxis_config = dict(gridcolor='rgba(0,0,0,0.1)', title_standoff=25)
+            
+        else:
+            # Orientation horizontale
+            fig.add_trace(go.Bar(
+                y=count_recurrent.index,
+                x=count_recurrent.values,
+                name='Récurrents (Oui)',
+                marker_color='#00cc96',  # Vert
+                text=count_recurrent.values,
+                textposition='auto',
+                hovertemplate='<b>%{y}</b><br>Nombre: %{x}<br>Catégorie: Récurrents<extra></extra>',
+                orientation='h'
+            ))
+            
+            fig.add_trace(go.Bar(
+                y=count_non_recurrent.index,
+                x=count_non_recurrent.values,
+                name='Non Récurrents (Non)',
+                marker_color='#ff5733',  # Orange
+                text=count_non_recurrent.values,
+                textposition='auto',
+                hovertemplate='<b>%{y}</b><br>Nombre: %{x}<br>Catégorie: Non Récurrents<extra></extra>',
+                orientation='h'
+            ))
+            
+            xaxis_title = 'Nombre de donneurs'
+            yaxis_title = column
+            xaxis_config = dict(gridcolor='rgba(0,0,0,0.1)', title_standoff=25)
+            yaxis_config = dict(title_standoff=25)
+            
+    else:
+        # Pour les graphiques de distribution (donneurs récurrents uniquement)
+        count_recurrent = data_recurrent[column].value_counts()
+        top4_categories = count_recurrent.head(4).index
+        count_recurrent = count_recurrent[count_recurrent.index.isin(top4_categories)]
+        
+        # Créer le graphique de distribution
+        fig = go.Figure()
+        
+        if orientation == 'v':
+            # Orientation verticale
+            fig.add_trace(go.Bar(
+                x=count_recurrent.index,
+                y=count_recurrent.values,
+                name='Récurrents',
+                marker_color='#00cc96',  # Vert
+                text=count_recurrent.values,
+                textposition='auto',
+                hovertemplate='<b>%{x}</b><br>Nombre: %{y}<br>Catégorie: Récurrents<extra></extra>'
+            ))
+            
+            xaxis_title = column
+            yaxis_title = 'Nombre de donneurs'
+            xaxis_config = dict(tickangle=45, title_standoff=25)
+            yaxis_config = dict(gridcolor='rgba(0,0,0,0.1)', title_standoff=25)
+            
+        else:
+            # Orientation horizontale
+            fig.add_trace(go.Bar(
+                y=count_recurrent.index,
+                x=count_recurrent.values,
+                name='Récurrents',
+                marker_color='#00cc96',  # Vert
+                text=count_recurrent.values,
+                textposition='auto',
+                hovertemplate='<b>%{y}</b><br>Nombre: %{x}<br>Catégorie: Récurrents<extra></extra>',
+                orientation='h'
+            ))
+            
+            xaxis_title = 'Nombre de donneurs'
+            yaxis_title = column
+            xaxis_config = dict(gridcolor='rgba(0,0,0,0.1)', title_standoff=25)
+            yaxis_config = dict(title_standoff=25)
+    
+    # Personnaliser le layout
+    fig.update_layout(
+        title=f"{title_prefix} par {column} (Top 4)",
+        xaxis_title=xaxis_title,
+        yaxis_title=yaxis_title,
+        xaxis=xaxis_config,
+        yaxis=yaxis_config,
+        legend=dict(
+            title='Statut de récurrence',
+            orientation='h',
+            yanchor='bottom',
+            y=-0.3,
+            xanchor='center',
+            x=0.5
+        ),
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        font=dict(size=12, color='black'),
+        margin=dict(l=50, r=50, t=80, b=150),
+        width=800,
+        height=600,
+        bargap=0.2,
+        barmode='group' if comparison else 'stack'
+    )
+    
+    # Afficher le graphique
+    st.plotly_chart(fig)
+    orientation_dict = {
+'Classe_Age': 'v',  # Vertical pour les tranches d'âge
+'Genre_': 'v',      # Vertical pour le genre
+'Niveau_d_etude': 'v',  # Vertical pour le niveau d'étude
+'Religion_Catégorie': 'h',  # Horizontal pour les religions (étiquettes longues)
+'Situation_Matrimoniale_(SM)': 'v',  # Vertical pour la situation matrimoniale
+'categories': 'h',  # Horizontal pour les catégories professionnelles (étiquettes longues)
+'Arrondissement_de_résidence_': 'h'  # Horizontal pour les arrondissements (étiquettes longues)
+}
+
