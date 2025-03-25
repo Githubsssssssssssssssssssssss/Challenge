@@ -1,6 +1,6 @@
 # Core Streamlit
 streamlit
-streamlit-extras  # Includes grid and stylable_container
+streamlit_extras  # Includes grid and stylable_container
 
 # Data Manipulation
 pandas
