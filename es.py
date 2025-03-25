@@ -811,7 +811,7 @@ if selected_item =="Campaign Insights":
     st.markdown(f"""<div class="card-title" style="text-align: center; font-size: 24px; font-weight: bold; color: #FF5A5A;">
     {get_text("")}</div> """,  unsafe_allow_html=True)
     row1_cos = st.columns(1)
-    create_metric_card(row1_cos[0],title=get_text("Evolution of Donations"),plot_function=lambda: jour(load_data1(),height="400px"),width="100%") 
+    create_metric_card(row1_cos[0],title=get_text("Evolution of Donation"),plot_function=lambda: jour(load_data1(),height="400px"),width="100%") 
 
     st.markdown(f"""<div class="card-title" style="text-align: center; font-size: 24px; font-weight: bold; color: #FF5A5A;">
     {get_text("")}</div> """,  unsafe_allow_html=True)
