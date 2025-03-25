@@ -3,7 +3,6 @@ import base64
 import time
 import os
 import datetime
-import streamlit_extras
 import pandas as pd
 from streamlit_extras.grid import grid
 from streamlit_extras.stylable_container import stylable_container

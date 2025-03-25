@@ -1,6 +1,8 @@
+# Explicitly include streamlit-extras
+streamlit-extras
+
 # Core Streamlit
 streamlit
-streamlit-extras==0.3.2  # Includes grid and stylable_container
 
 # Data Manipulation
 pandas
@@ -22,6 +24,3 @@ matplotlib
 streamlit-echarts
 pyecharts
 wordcloud
-
-
-re
