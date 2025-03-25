@@ -217,12 +217,6 @@ def create_metric_card(column, title, plot_function, height="250px",width="100%"
                     max-width: {cell_width};
                     border: 1px solid black;
                     border-radius: 10px;
-                    margin: 0px;
-                    padding: 0px;
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: flex-start;
                     background-color: #f8f9fa;
                     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.8);
                     transition: all 0.2s ease;
