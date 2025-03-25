@@ -169,7 +169,7 @@ def create_card(content, key, cell_height="200px", cell_width="160px"):
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                background-color: #FFFEBA;
+                background-color: lightred;
                 box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
                 transition: all 0.2s ease;
                 overflow: hidden;
@@ -403,7 +403,9 @@ selected_item = st.sidebar.selectbox(
     format_func=lambda x: menu_items[x],
     index=0,  # Premier élément sélectionné par défaut
     key="main_menu",
-    help="Sélectionnez une option du menu"
+    help="Sélectionnez une option du menu",
+    # Ajoutez cette ligne pour contrôler la hauteur
+    kwargs={"height":  len(menu_items) * 40 }
 )
 
 if selected_item =="Campaign Insights":
@@ -498,27 +500,18 @@ if selected_item =="Campaign Insights":
 
     row1_cos = st.columns(1)
     create_metric_card(row1_cos[0],title="Number of Donors By Months",plot_function=lambda: plot_radar_chart(data, categories),width="100%") 
-    
-    st.markdown(f"""<div class="card-title" style="text-align: center; font-size: 24px; font-weight: bold; color: #FF5A5A;">
-    {get_text("")}</div> """,  unsafe_allow_html=True)
     row1_cos = st.columns(1)
-    create_metric_card(row1_cos[0],title=get_text("Evolution of Number of Donors"),plot_function=lambda: number_line(filtered_data),width="100%") 
+    create_metric_card(row1_cos[0],title=" Evolution of Number of Donors",plot_function=lambda: number_line(filtered_data),width="100%") 
     
-    st.markdown(f"""<div class="card-title" style="text-align: center; font-size: 24px; font-weight: bold; color: #FF5A5A;">
-    {get_text("")}</div> """,  unsafe_allow_html=True)
     row1_cos = st.columns(1)
-    create_metric_card(row1_cos[0],title=get_text("Evolution of Donations"),plot_function=lambda: heatmap(filtered_data),width="100%") 
+    create_metric_card(row1_cos[0],title=" Evolution of Donations",plot_function=lambda: heatmap(filtered_data),width="100%") 
     
-    st.markdown(f"""<div class="card-title" style="text-align: center; font-size: 24px; font-weight: bold; color: #FF5A5A;">
-    {get_text("")}</div> """,  unsafe_allow_html=True)
     row1_cos = st.columns(1)
-    create_metric_card(row1_cos[0],title=get_text("Evolution of Donations"),plot_function=lambda: jour(load_data1(),height="400px"),width="100%") 
+    create_metric_card(row1_cos[0],title=" Evolution of Donations",plot_function=lambda: jour(load_data1(),height="400px"),width="100%") 
 
-    st.markdown(f"""<div class="card-title" style="text-align: center; font-size: 24px; font-weight: bold; color: #FF5A5A;">
-    {get_text("")}</div> """,  unsafe_allow_html=True)
     row1_cos = st.columns(2)
-    create_metric_card(row1_cos[0],title=get_text("Non Eligibility Purposes"),plot_function=lambda: generate_wordcloud_and_barchart(filtered_data1),width="100%") 
-    create_metric_card(row1_cos[1],title=get_text("Non Availability purposes"),plot_function=lambda:generate_wordcloud_and_barchart(filtered_data2),width="100%") 
+    create_metric_card(row1_cos[0],title="Non Eligibility Purposes",plot_function=lambda: generate_wordcloud_and_barchart(filtered_data1),width="100%") 
+    create_metric_card(row1_cos[1],title="Non Availability purposes",plot_function=lambda:generate_wordcloud_and_barchart(filtered_data2),width="100%") 
 
 if selected_item =="Eligibility and Profile" : 
     st.markdown("""
@@ -559,28 +552,6 @@ if selected_item =="Eligibility and Profile" :
     """,
     unsafe_allow_html=True
 )
-    combined_data = get_combined_data()
-    row1_cols = st.columns(3)
-    with row1_cols[1]:
-        all_arrondissement = combined_data['Arrondissement_de_résidence_'].unique()
-        selected_arrondissement = st.sidebar.multiselect(
-            get_text("Districts"),
-            all_arrondissement
-        )
-        if not selected_arrondissement:
-            selected_arrondissement = all_arrondissement
-    with row1_cols[2]:
-        all_case = combined_data['ÉLIGIBILITÉ_AU_DON.'].unique()
-        selected_case = st.sidebar.multiselect(
-            "Eligible",
-            all_case # Limiter par défaut pour améliorer les performances
-        )
-        if not selected_case:
-            selected_case = all_case
-    # Filtrer les données avec tous les filtres
-    filtered_data = combined_data[
-        (combined_data['Arrondissement_de_résidence_'].isin(selected_arrondissement)) &
-        (combined_data['ÉLIGIBILITÉ_AU_DON.'].isin(selected_case))]
     st.markdown("""
         <style>
         .block-container {
@@ -598,26 +569,15 @@ if selected_item =="Eligibility and Profile" :
             }
         </style>
         """, unsafe_allow_html=True)
+    combined_data = get_combined_data()
     st.markdown(f"""<div class="card-title" style="text-align: center; font-size: 24px; font-weight: bold; color: #FF5A5A;">
     {get_text("Welcome to the  Eligibility and Profile Section")}
     </div> """,  unsafe_allow_html=True)
     row1_cos = st.columns(1)
-    create_metric_card(row1_cos[0],title=get_text("Eligibility Profile"),plot_function=lambda: circle(filtered_data),width="100%") 
+    create_metric_card(row1_cos[0],title="Eligibility Profile",plot_function=lambda: circle(combined_data),width="100%") 
+    create_metric_card(row1_cos[0],title="Ideal Donor",plot_function=lambda: display_ideal_chart(),width="100%") 
     
-    st.markdown(f"""<div class="card-title" style="text-align: center; font-size: 24px; font-weight: bold; color: #FF5A5A;">
-    {get_text("")}</div> """,  unsafe_allow_html=True)
-    st.markdown(f"""<div class="card-title" style="text-align: center; font-size: 24px; font-weight: bold; color: #FF5A5A;">
-    {get_text("")}<br/></div> """,  unsafe_allow_html=True)
-    if st.session_state.language == "English"  : 
-        create_metric_card(row1_cos[0],title=get_text("Ideal Donor"),plot_function=lambda: display_ideal_chart_e() , width="100%") 
-    else :  
-        create_metric_card(row1_cos[0],title="Ideal Donor",plot_function=lambda: display_ideal_chart_f() , width="100%") 
-    
-    st.markdown(f"""<div class="card-title" style="text-align: center; font-size: 24px; font-weight: bold; color: #FF5A5A;">
-    {get_text("")}</div> """,  unsafe_allow_html=True)
-    st.markdown(f"""<div class="card-title" style="text-align: center; font-size: 24px; font-weight: bold; color: #FF5A5A;">
-    {get_text("")}</div> """,  unsafe_allow_html=True)
-    create_metric_card(row1_cos[0],title=get_text("Eligibility In Douala"),plot_function=lambda: three(filtered_data),width="100%") 
+    create_metric_card(row1_cos[0],title="Eligibility In Douala",plot_function=lambda: three(load_data1()),width="100%") 
 
 
 if selected_item == "Dataset Insights":
@@ -702,20 +662,20 @@ if selected_item == "Dataset Insights":
         (combined_data['ÉLIGIBILITÉ_AU_DON.'].isin(selected_case))]
 
     cols = st.columns(2)
-    create_metric_card(cols[0], title=get_text("Marital Status"), plot_function=lambda: render_frequency_pieh(filtered_data["Situation_Matrimoniale_(SM)"], legend_top="70%", legend_left="15%"), width="100%")
-    create_metric_card(cols[1], title=get_text("Level"), plot_function=lambda: render_frequency_pieh(filtered_data["Niveau_d'etude"]), width="100%")
+    create_metric_card(cols[0],title="Marital Status",plot_function=lambda: render_frequency_pieh(filtered_data["Situation_Matrimoniale_(SM)"],legend_top="70%",legend_left="15%") ,width="100%") 
+    create_metric_card(cols[1],title="Level",plot_function=lambda:  render_frequency_pieh(filtered_data["Niveau_d'etude"]),width="100%") 
     cols = st.columns(2)
-    create_metric_card(cols[0], title=get_text("Sector"), plot_function=lambda: render_frequency_pie(filtered_data["Secteur"], legend_left="2%", legend_top="2%"), width="100%")
-    create_metric_card(cols[1], title=get_text("Gender"), plot_function=lambda: render_frequency_pieh(filtered_data["Genre_"], legend_top="80%", legend_left="65%"), width="100%")
+    create_metric_card(cols[0],title="Sector",plot_function=lambda: render_frequency_pie(filtered_data["Secteur"],legend_left="2%",legend_top="2%") ,width="100%") 
+    create_metric_card(cols[1],title="Gender",plot_function=lambda:  render_frequency_pieh(filtered_data["Genre_"],legend_top="80%",legend_left="65%") ,width="100%") 
     
     cols = st.columns(2)
-    create_metric_card(cols[0], title=get_text("Profession"), plot_function=lambda: render_frequency_pie(filtered_data["categories"], legend_left="2%", legend_top="2%"), width="100%")
-    create_metric_card(cols[1], title=get_text("Eligibility Status"), plot_function=lambda: render_frequency_pieh(filtered_data["ÉLIGIBILITÉ_AU_DON."], legend_top="90%", legend_left="15%"), width="100%")
+    create_metric_card(cols[0],title="Profession",plot_function=lambda: render_frequency_pie(filtered_data["categories"],legend_left="2%",legend_top="2%") ,width="100%") 
+    create_metric_card(cols[1],title="Eligibility Status",plot_function=lambda:  render_frequency_pieh(filtered_data["ÉLIGIBILITÉ_AU_DON."],legend_top="90%",legend_left="15%") ,width="100%") 
 
-    cols = st.columns(2)
+    cols = st.columns(2) 
     option = compute_age_distribution(filtered_data['Age'])
-    create_metric_card(cols[0], title=get_text('Age distribution'), plot_function=lambda: st_echarts(options=option, height=400, width="100%"), width="100%")
-    create_metric_card(cols[1], title=get_text('Population Pyramid'), plot_function=lambda: plot_age_pyramid(filtered_data, height=400), width="100%")
+    create_metric_card(cols[0],title=get_text('Age distribution'),plot_function=lambda: st_echarts(options=option, height=400, width="100%") ,width="100%") 
+    create_metric_card(cols[1],title=get_text('Population Pyramid'),plot_function=lambda:   plot_age_pyramid(filtered_data,height=400) ,width="100%") 
 
 if selected_item == "Options":
     st.markdown(
@@ -831,40 +791,13 @@ if selected_item == "Options":
     if st.button(get_text("Apply Language"), key="apply_language_button"):
         st.success(f"Language will be changed to {st.session_state.widget_language  }! Click Again to confirm. ")
         apply_language()
-                   
+            
 if selected_item == "Home":
     n=0.811111
-   
-    col = st.columns(1)
 
-    with col[0]: 
-        with stylable_container(
-            key='842',
-            css_styles="""
-                {border: 1px solid #c0c0c0;
-                border-radius: 10px;
-                margin: 0px;  # Small margin for spacing
-                top : 7px;
-                padding: 10px ; 
-                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-                transition: all 0.2s ease;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                color: green;
-                }
-                
-            """
-        ):
-            st.markdown(
-                f"""
-                <div class="card-title" style="text-align: center; font-size: 29px; font-weight: bold; color: red;">
-                    {get_text("Welcome to Our Blood Donation Campaign Dashboard")}
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-        
+    st.markdown(f"""<div class="card-title" style="text-align: center; font-size: 29px; font-weight: bold; color: red   ;">
+    {get_text("Welcome to Our Blood Donation Campaign Dashboard")}
+    </div> """,  unsafe_allow_html=True)
     st.markdown("""
         <style>
         .block-container {
@@ -887,30 +820,30 @@ if selected_item == "Home":
         
         Volonteers = load_data1().shape[0] +load_data2(get_modification_time()).shape[0]
         temp_content = format_card_content(get_text("Volonteers"), Volonteers)
-        create_card(temp_content, key="temperature", cell_height="90px", cell_width="105%")
+        create_card(temp_content, key="card_temperature", cell_height="90px", cell_width="105%")
 
     with row1_cols[1]:
         df1 = load_data1()
         df2 = load_data2(get_modification_time())
         eligible = df1[df1["ÉLIGIBILITÉ_AU_DON."] == "Eligible"].shape[0] + df2[df2["ÉLIGIBILITÉ_AU_DON."] == "Eligible"].shape[0]
         wind_content = format_card_content(get_text("Eligible"), eligible)
-        create_card(wind_content, key="wind", cell_height="90px", cell_width="105%")
+        create_card(wind_content, key="card_wind", cell_height="90px", cell_width="105%")
 
     with row1_cols[2]:
         T_eligible = df1[df1["ÉLIGIBILITÉ_AU_DON."] == "Temporairement Non-eligible"].shape[0] + df2[df2["ÉLIGIBILITÉ_AU_DON."] == "Temporairement Non-eligible"].shape[0]
         wind_content = format_card_content(get_text("Temporarily Non-eligible"), T_eligible)
-        create_card(wind_content, key="humidity", cell_height="90px", cell_width="103%")
+        create_card(wind_content, key="card_humidity", cell_height="90px", cell_width="103%")
 
     with row1_cols[3]:
         T_eligible = df1[df1["ÉLIGIBILITÉ_AU_DON."] == "Définitivement non-eligible"].shape[0] + df2[df2["ÉLIGIBILITÉ_AU_DON."] == "Définitivement non-eligible"].shape[0]
         wind_content = format_card_content(get_text("Definitely Non-eligible"), T_eligible)
-        create_card(wind_content, key="card", cell_height="90px", cell_width="103%")
+        create_card(wind_content, key="card_humidity", cell_height="90px", cell_width="103%")
 
     with row1_cols[6]:
         df =  get_combined_data()
         nomb = df['Si oui preciser la date du dernier don'].count()
-        wind = format_card_content(get_text("Have Ever Donated"), nomb)
-        create_card(wind, key="donated", cell_height="90px", cell_width="103%")
+        wind = format_card_content(get_text("Old blood donor "), nomb)
+        create_card(wind, key="card_humidity", cell_height="90px", cell_width="103%")
 
     with row1_cols[4]:
         df= load_data1()[(load_data1()['ÉLIGIBILITÉ_AU_DON.']=="Définitivement non-eligible")]
@@ -921,7 +854,7 @@ if selected_item == "Home":
         df_exploded = df_exploded.dropna(subset=["Raison_indisponibilité_fusionnée"])
         element_frequent = df_exploded["Raison_indisponibilité_fusionnée"].mode()[0]
         wind = format_card_content(get_text("Most Ilegibility Purpose"), element_frequent)
-        create_card(wind, key="available", cell_height="90px", cell_width="103%")
+        create_card(wind, key="card_humidity", cell_height="90px", cell_width="103%")
 
     with row1_cols[5]:
         df= load_data1()[(load_data1()['ÉLIGIBILITÉ_AU_DON.']=="Temporairement Non-eligible")]
@@ -932,7 +865,7 @@ if selected_item == "Home":
         df_exploded = df_exploded.dropna(subset=["Raison_indisponibilité_fusionnée"])
         element_frequent = df_exploded["Raison_indisponibilité_fusionnée"].mode()[0]
         wind = format_card_content(get_text("Most Non eligible Purpose"), element_frequent)
-        create_card(wind, key="eligible", cell_height="90px", cell_width="103%")
+        create_card(wind, key="card_humidity", cell_height="90px", cell_width="103%")
 
     gdf = load_shapefile("gadm41_CMR_0.shp")
     data_df_3 = get_preprocessed_data(3)
@@ -941,7 +874,7 @@ if selected_item == "Home":
     row=st.columns(1)
     with row[0]:
         with stylable_container(
-                key='944',
+                key='c',
                 css_styles=f"""
                     {{
                     width : 100%;
@@ -1005,7 +938,7 @@ if selected_item == "Home":
                             },
                             "data": [{
                                 "value": round(100*eligible/Volonteers, 1),  # Example value
-                                "name": get_text("Eligibility Rate"),  # Label for the value"Eligibility Rate"
+                                "name": "Eligibility Rate"
                             }]
                         }
                     ]
@@ -1053,7 +986,7 @@ if selected_item == "Home":
                             },
                             "data": [{
                                 "value": round(100*T_eligible/Volonteers, 1),  # Example value
-                                "name": get_text("Temporarily Eligibility Rate"), #"Temporarily Eligibility Rate"
+                                "name": "Temporarily Eligibility Rate"
                             }]
                         }
                     ]
@@ -1101,7 +1034,7 @@ if selected_item == "Home":
                             },
                             "data": [{
                                 "value": round(100*(Volonteers-eligible-T_eligible)/Volonteers, 1),  # Example value
-                                "name": get_text("Ilegibility Rate"), #"Ilegibility Rate"
+                                "name": "Ilegibility Rate"
                             }]
                         }
                     ]
@@ -1113,7 +1046,7 @@ if selected_item == "Home":
     with row[0] : 
         st.markdown(f"""<div class="card-title" style="text-align: center; font-size: 20px; font-weight: bold; color:black">{get_text("Donnor Insights")}</div> """,  unsafe_allow_html=True)       
         with stylable_container(
-            key='1116',
+            key='c',
             css_styles=f"""
                 {{
                 width : 100%;
@@ -1136,20 +1069,17 @@ if selected_item == "Home":
                 row_1 = st.columns(2)
                 st.write("")
                 with row_1[0] :
-                    st.markdown(f"""<div class="card-title" style="text-align: center; font-size: 20px; font-weight: bold; color:red">{get_text("Blood distribution")}</div> """,  unsafe_allow_html=True)       
+                    st.write("#### <span style='color: red;'>Blood distribution</span>", unsafe_allow_html=True)
                     pie_data = count_frequencies(load_data3()["Groupe Sanguin ABO / Rhesus "])
                     render_frequency_pie2(pie_data)
                 with row_1[1] :
-                    st.markdown(f"""<div class="card-title" style="text-align: center; font-size: 20px; font-weight: bold; color:red">{get_text("Donation Type")}</div> """,  unsafe_allow_html=True)       
+                    st.write("#### <span style='color: red;'>Type of donation</span>", unsafe_allow_html=True)
                     pie_data = count_frequencies(load_data3()["Type de donation"])
                     render_frequency_pie2(pie_data)
-                st.markdown(f"""<div class="card-title" style="text-align: center; font-size: 20px; font-weight: bold; color:red">{get_text("Donor Profile")}</div> """,  unsafe_allow_html=True)       
-                if st.session_state.language == "English":
-                    display_ideal_chart_e() 
-                else : display_ideal_chart_f()
-        st.markdown(f"""<div class="card-title" style="text-align: center; font-size: 20px; font-weight: bold; color:black">{get_text("Social and Demographics stats")}</div> """,  unsafe_allow_html=True)       
+                display_ideal_chart() 
+        st.markdown(f"""<div class="card-title" style="text-align: center; font-size: 20px; font-weight: bold; color:black">{get_text("Social Demographics stats")}</div> """,  unsafe_allow_html=True)       
         with stylable_container(
-            key='1152',
+            key='cartes',
             css_styles=f"""
                 {{width : 100%;
                 
@@ -1179,17 +1109,17 @@ if selected_item == "Home":
             """ ):
             row_1 = st.columns([1,1.4])
             with row_1[0] :
-                st.markdown(f'''<div style='text-align: center;'>{get_text("Level")}</div>''', unsafe_allow_html=True)
+                st.markdown("<div style='text-align: center;'>Niveau d'etude</div>", unsafe_allow_html=True)
                 pie_data = count_frequencies(load_data1()["Niveau_d'etude"])
                 render_frequency_pie2(pie_data)
-                st.markdown(f'''<div style='text-align: center;'>{get_text("Marital Status")}</div>''', unsafe_allow_html=True)
+                st.markdown("<div style='text-align: center;'>Status</div>", unsafe_allow_html=True)
                 pie_data = count_frequencies(load_data1()["Situation_Matrimoniale_(SM)"])
                 render_frequency_pie2(pie_data)
             with row_1[1] :
-                st.markdown(f'''<div style='text-align: center;'>{get_text("Gender")}</div>''', unsafe_allow_html=True)
+                st.markdown("<div style='text-align: center;'>Genre</div>", unsafe_allow_html=True)
                 pie_data = count_frequencies(load_data1()["Genre_"])
                 render_frequency_pie2(pie_data)
-                st.markdown(f'''<div style='text-align: center;'>{get_text("Eligibility")}</div>''', unsafe_allow_html=True)
+                st.markdown("<div style='text-align: center;'>Eligibilité</div>", unsafe_allow_html=True)
                 pie_data = count_frequencies(load_data1()["ÉLIGIBILITÉ_AU_DON."])
                 render_frequency_pie2(pie_data)
 
@@ -1198,7 +1128,7 @@ if selected_item == "Home":
     with row[1] : 
         st.markdown(f"""<div class="card-title" style="text-align: center; font-size: 20px; font-weight: bold; color:black">{get_text("Cartography Summary")}</div> """,  unsafe_allow_html=True)       
         with stylable_container(
-            key='1201',
+            key='cartes',
             css_styles=f"""
                 {{width : 110%;
                     border: 1px solid #c0c0c0;
@@ -1291,7 +1221,7 @@ if selected_item == "Home":
 
         st.markdown(f"""<div class="card-title" style="text-align: center; font-size: 20px; font-weight: bold; color:black">{get_text("Campaign efficacity")}</div> """,  unsafe_allow_html=True)       
         with stylable_container(
-            key='1294',
+            key='cartes',
             css_styles=f"""
                 {{width : 95%;
                 
@@ -1358,17 +1288,17 @@ elif selected_item == "Donations":
                 donor_number = st.number_input(get_text("Registration Number"), min_value=last_donor_number + 1, value=last_donor_number + 1, step=1)
                 ID = f"DONOR_{donor_number}"
                 Date_remplissage = st.date_input(get_text("Filling Date"))
-                Date_naiss = st.date_input(get_text("BirthDate"), min_value=datetime.date(1960, 1, 1))
+                Date_naiss = st.date_input(get_text("BirthDate"), min_value=datetime.date(1990, 1, 1))
+                Age =(Date_remplissage - Date_naiss).days //365
                 st.write(f"Âge : {(Date_remplissage - Date_naiss).days //365} ans")
                 Niveau_detude = st.selectbox(get_text("Education Level"), ["Primary", "Secondary", "High School", "Bachelor's", "Master's", "PhD", "Other"])
-                Genre_ = st.radio(get_text("Gender"), ["Homme", "Femme"])
+                Genre_ = st.radio(get_text("Gender"), ["Male", "Female"])
                 Taille_ = st.number_input(get_text("Height"), min_value=100, max_value=220, step=1)
                 Poids = st.number_input(get_text("Weight"), min_value=60, max_value=200, step=1)
-                Profession_ = st.text_input("Profession")  
+                Situation_Matrimoniale_SM = st.selectbox(get_text("Marital Status"), ["Single", "Married", "Divorced", "Widowed", "Domestic Partnership"])
                 
-                                
             with col2:
-                A_deja_donne_le_sang_ = st.radio(get_text("Has already donated blood"), ["Yes", "No"]) 
+                Profession_ = st.text_input("Profession")
                 geo_data_3 = gpd.read_file("gadm41_CMR_3.shp")
                 districts = geo_data_3["NAME_3"].unique()
                 Arrondissement_de_residence_ = st.selectbox(
@@ -1393,14 +1323,10 @@ elif selected_item == "Donations":
                 if st.form_submit_button(get_text("verify")):
                     pass
                 Nationalite_ = st.selectbox(get_text("Country"), options=pays_afrique_centrale)
-                Age =(Date_remplissage - Date_naiss).days //365
                 Religion_ = st.selectbox(get_text("Religion"), ["Christianity", "Islam", "Judaism", "Buddhism", "Other", "No religion"])
-                Situation_Matrimoniale_SM = st.selectbox(get_text("Marital Status"), ["Single", "Married", "Divorced", "Widowed", "Domestic Partnership"])
-                if A_deja_donne_le_sang_ == "Yes":
-                    Date_dernier_don_ = st.date_input(get_text("If already donated, specify the date of the last donation"))
-                else:
-                    Date_dernier_don_ = None  
-                Taux_dhemoglobine_ = st.number_input(get_text("Hemoglobin Level"), min_value=0.0, max_value=25.0, step=0.1)               
+                A_deja_donne_le_sang_ = st.radio(get_text("Has already donated blood"), ["Yes", "No"])
+                Date_dernier_don_ = st.date_input(get_text("If yes, specify the date of the last donation") if A_deja_donne_le_sang_ == "Yes" else "")
+                Taux_dhemoglobine_ = st.number_input(get_text("Hemoglobin Level"), min_value=0.0, max_value=25.0, step=0.1)
                 #ELIGIBILITE_AU_DON = st.selectbox(get_text("ELIGIBILITY FOR DONATION"), ["Not Eligible", "Eligible"])
             # Create a container for non-eligibility fields that will be shown/hidden based on eligibility
             non_eligibility_container = st.container()
@@ -1437,7 +1363,7 @@ elif selected_item == "Donations":
                     
             if st.form_submit_button(get_text("Submit")):
                 if not Age or not Arrondissement_de_residence_ :
-                    st.error("Please fill all required fields. It seems that you don't fill the date of birth")
+                    st.error("Please fill all required fields.")
                 else:
                     new_donor = pd.DataFrame({
                     'id': [f"DONOR_{donor_number}"],
@@ -1500,26 +1426,13 @@ elif selected_item == "Donations":
     #_________________________________________
                  
                 # Check eligibility and display message 
-                    if check_eligibility(new_donor)['eligibility'] == 'Eligible':
-                        if st.session_state.language == "English" :
-                            message("🎉🎆🎊 The Volonteer is  Eligible 🎉🎆🎊")
-                            time.sleep(2)  
-                            st.balloons()
-                        else : 
-                            message("🎉🎆🎊Le volontaire est  Eligible 🎉🎆🎊")
-                            time.sleep(2)  
-                            st.balloons()
+                    if check_eligibility(new_donor)['eligibility'] == "Eligible":
+                        message("🎉🎆🎊 You are Eligible 🎉🎆🎊")
+                        time.sleep(2)  
+                        st.balloons()
+                    else :
+                        message(f"""The Volonteer is  {new_donor['eligibilite_au_don'][0]}...   😔😔""")
 
-                    elif  check_eligibility(new_donor)['eligibility'] =='Temporairement Non-eligible':
-                        if st.session_state.language == "English" :
-                            message(f"""The Volonteer is  Temporarily Non Eligible  😔😔""")
-                        else : 
-                            message(f"""Le volontaire est  Temporairement Non-eligible😔😔""")
-                    else : 
-                        if st.session_state.language == "English" :
-                            message(f"""The Volonteer is Definitely Non Eligible  😔😔""")
-                        else : 
-                            message(f"""Le volontaire est  Definitivement Non-eligible😔😔""")
     
 
                 
@@ -1736,7 +1649,7 @@ elif selected_item == "Cartography":
             
         with col1:
                 with stylable_container(
-                    key='1739',
+                    key='carte',
                     css_styles=f"""
                         {{
                             width: {'100%'};   
@@ -1819,7 +1732,7 @@ elif selected_item == "Cartography":
             st.markdown(f"<h2 class='card-title' style='text-align: center; color: #8a2be2;'>{get_text('Some Filters')}</h2>", unsafe_allow_html=True)
             st.markdown(f"<h7 class='card-title' style='text-align: center; '>{get_text('By default, Nothing selected means all is selected')}</h7>", unsafe_allow_html=True)
             
-            all_arrondissement = combined_data['Arrondissement_de_résidence_'].unique()
+            all_arrondissement = sorted(combined_data['Arrondissement_de_résidence_'].unique())
             selected_arrondissement = st.multiselect(
                 get_text("Districts"),
                 all_arrondissement
@@ -1943,7 +1856,7 @@ elif selected_item == "Cartography":
         with col1:
             st.markdown(f"<h3 class='card-title' style='text-align: center; ;'>{get_text('Zoom for better appreciation')}</h3>", unsafe_allow_html=True)
             with stylable_container(
-                key='1946',
+                key='carte_marqueurs',
                 css_styles=f"""
                     {{
                         width: {'100%'};   
@@ -2070,10 +1983,10 @@ elif selected_item == "About":
                 return image_name
 
         team_members = [
-            {"name": "ASSA ALLO", "email": "alloassa21@gmail.com", "phone": "+1234567890", "image": "img/aa.jpg"},
+            {"name": "ASSA ALLO", "email": "Assaallo@gmail.com", "phone": "+1234567890", "image": "img/aa.jpg"},
             {"name": " Steeve Rodrigue", "email": "rodriguetakougoum@gmail.com", "phone": "+237 6 51 85 90 69", "image": "img/sr.png"},
-            {"name": "Razak TIDJANI", "email": "tidjanirazak0@gmail.com", "phone": "+1122334455", "image": "img/rz.jpg"},            
-            {"name": "TCHINDA CHRIS", "email": "tcd9602@gmail.com", "phone": "+5544332211", "image": "img/tcd.jpg"},
+            {"name": "Razak TIDJANI", "email": "razaktidjanI@gmail.com", "phone": "+1122334455", "image": "img/rz.jpg"},            
+            {"name": "TCHINDA CHRIS", "email": "chris@gmail.com", "phone": "+5544332211", "image": "img/rz.jpg"},
         ]
 
         # Display Team Members in a 1x4 Grid
