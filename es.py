@@ -748,7 +748,7 @@ if selected_item == "Options":
         "Blue": {
             "primaryColor": "#087CEF",
             "backgroundColor": "#FFFFFF",
-            "secondaryBackgroundColor": "#7FD6AC",
+            "secondaryBackgroundColor": "#7FBBD6",
             "textColor": "black",
             "font": "sans serif"
         }
