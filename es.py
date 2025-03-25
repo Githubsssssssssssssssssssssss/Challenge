@@ -29,7 +29,18 @@ st.set_page_config(
 if 'language' not in st.session_state:
     st.session_state.language = "English"
 
+#_____________________________________
+# Style personnalisé (optionnel)
+st.markdown("""
+<style>
+.stApp {
+    background-color: white;
+}
+</style>
+""", unsafe_allow_html=True)
 
+
+#_____________________________________
 # Chargement des traductions
 with open('langage.json', 'r', encoding='utf-8') as json_file:
     TRANSLATIONS = json.load(json_file)
