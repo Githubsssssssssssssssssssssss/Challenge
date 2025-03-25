@@ -3,7 +3,6 @@ import base64
 import time
 import os
 import datetime
-from streamlit_folium import st_folium
 import pandas as pd
 from streamlit_extras.grid import grid
 from streamlit_extras.stylable_container import stylable_container
@@ -1242,17 +1241,10 @@ if selected_item == "Home":
 
                     combined_data = get_hierarchical_data()
                     geo_data_3 = load_shapefile("gadm41_CMR_3.shp", simplify_tolerance=0.01)
-                    def calculate_accurate_centroids(geo_data_3):
-                        if geo_data_3.crs.is_geographic:
-                            projected_crs = 'EPSG:4047'
-                            geo_data_3_proj = geo_data_3.to_crs(projected_crs)
-                            centroids_proj = geo_data_3_proj.geometry.centroid
-                            centroids_geo = centroids_proj.to_crs(geo_data_3.crs)
-                            return centroids_geo.y, centroids_geo.x
-                        else:
-                            return geo_data_3.geometry.centroid.y, geo_data_3.geometry.centroid.x
 
-                    geo_data_3['centroid_lat'], geo_data_3['centroid_lon'] = calculate_accurate_centroids(geo_data_3)
+                    geo_data_3['centroid_lat'] = geo_data_3['geometry'].centroid.y
+                    geo_data_3['centroid_lon'] = geo_data_3['geometry'].centroid.x
+
                     centroid_dict = dict(zip(geo_data_3['NAME_3'], zip(geo_data_3['centroid_lat'], geo_data_3['centroid_lon'])))
 
                     geo_data_3 = geo_data_3.merge(combined_data, left_on='NAME_3', right_on='Arrondissement_de_résidence_')
@@ -1294,8 +1286,8 @@ if selected_item == "Home":
                         ).add_to(m)
 
                     folium.LayerControl().add_to(m)
-                    st_folium(m, width=900, height=900)
 
+                    folium_static(m, width=400, height=500)
 
         st.markdown(f"""<div class="card-title" style="text-align: center; font-size: 20px; font-weight: bold; color:black">{get_text("Campaign efficacity")}</div> """,  unsafe_allow_html=True)       
         with stylable_container(
@@ -1773,7 +1765,7 @@ elif selected_item == "Cartography":
                                 color: #8a2be2;  # Light purple color
                             }}
                     """
-                ): st_folium(m, width=900, height=900)
+                ): folium_static(m, width=900, height=900)
     # Affichage de la carte de marqueurs
     if st.session_state.marquer_active:
         # Charger les données une seule fois
@@ -1972,7 +1964,7 @@ elif selected_item == "Cartography":
                     }}
 
                 """
-            ): st_folium(m1, width=900, height=900)        
+            ): folium_static(m1, width=900, height=900)              
 
 elif selected_item == "About":
     with st.sidebar:
