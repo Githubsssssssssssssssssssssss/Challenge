@@ -1224,7 +1224,7 @@ if selected_item == "Home":
         df_exploded = df.explode("Raison_indisponibilité_fusionnée")
         df_exploded = df_exploded.dropna(subset=["Raison_indisponibilité_fusionnée"])
         element_frequent = df_exploded["Raison_indisponibilité_fusionnée"].mode()[0]
-        wind = format_card_content(get_text("Most Non eligible Purpose"), element_frequent)
+        wind = format_card_content(get_text("Most Non Availability Purpose"), element_frequent)
         create_card(wind, key="eligible", cell_height="90px", cell_width="103%")
 
     gdf = load_shapefile("gadm41_CMR_0.shp")
